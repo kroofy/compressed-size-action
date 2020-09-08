@@ -31,11 +31,15 @@ async function run(octokit, context, token) {
 	const cwd = process.cwd();
 
 	const yarnLock = await fileExists(path.resolve(cwd, 'yarn.lock'));
+	const yarn2Config = await fileExists(path.resolve(cwd, '.yarnrc.yml'));
 	const packageLock = await fileExists(path.resolve(cwd, 'package-lock.json'));
 
 	let npm = `npm`;
 	let installScript = `npm install`;
-	if (yarnLock) {
+	if (yarn2Config) {
+		installScript = npm = `yarn --immutable`;
+	}
+	else if (yarnLock) {
 		installScript = npm = `yarn --frozen-lockfile`;
 	}
 	else if (packageLock) {
